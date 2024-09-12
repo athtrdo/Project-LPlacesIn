@@ -1,0 +1,230 @@
+<% layout('layouts/app') %>
+<link rel="stylesheet" href="/css/stars.css" />
+
+<div class="row mt-3">
+  <div class="col-6">
+    <div class="card">
+      <div id="carouselExampleIndicators" class="carousel slide">
+        <div class="carousel-indicators">
+          <%place.images.forEach((image, index) => {;%>
+          <button
+            type="button"
+            data-bs-target="#carouselExampleIndicators"
+            data-bs-slide-to="<%= index  %>"
+            class="<%= index === 0? 'active':''%>"
+            aria-current="true"
+            aria-label="Slide <%= index %>"
+          ></button>
+          <% }) %>
+        </div>
+        <div class="carousel-inner">
+          <% place.images.forEach((image, index) => {%>
+          <div class="carousel-item <%= index === 0? 'active':''%>">
+            <img
+              src="/images/<%= image.filename %>"
+              class="d-block w-100"
+              style="height: 400px"
+              alt="<%=place.title %>"
+            />
+          </div>
+          <% }) %>
+        </div>
+        <%if(place.images.length > 1){%>
+        <button
+          class="carousel-control-prev"
+          type="button"
+          data-bs-target="#carouselExampleIndicators"
+          data-bs-slide="prev"
+        >
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button
+          class="carousel-control-next"
+          type="button"
+          data-bs-target="#carouselExampleIndicators"
+          data-bs-slide="next"
+        >
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+        <% } %>
+      </div>
+      <div class="card-body">
+        <h4 class="card-title"><%= place.title %></h4>
+        <h6 class="card-text">Desc: <%= place.description %></>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">Location: <%= place.location %></li>
+        <li class="list-group-item">Author: <%=place.author.username %></li>
+        <li class="list-group-item">Fee:<h5 style="display: inline !important;"> <%= new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(place.price) %></h5></li>
+      </ul>
+      <div class="card-body d-flex justify-content-center align-items-center">
+        <% if(currentUser && place.author.equals(currentUser._id)) {%>
+        <form
+          action="/places/<%= place._id %>?_method=DELETE"
+          method="POST"
+          style="display: inline !important"
+        >
+          <button class="btn btn-danger mx-1" type="submit">Delete</button>
+          <a href="/places/<%= place._id %>/edit" class="btn btn-primary mx-1"
+            >Edit</a
+          >
+        </form>
+        <% } %>
+        <a href="/places" class="btn btn-secondary mx-1">Back</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-6">
+    <div
+      style="width: 640px; height: 480px; margin-bottom: 5%"
+      id="mapContainer"
+    ></div>
+    <% if(currentUser){ %>
+    <h3>Leave a review</h3>
+    <form
+      class="validated-form mb-3"
+      novalidate
+      action="/places/<%= place._id %>/reviews"
+      method="POST"
+    >
+      <div class="mb-3">
+        <label for="rating">Rating</label>
+        <fieldset class="starability-coinFlip validated-form">
+          <legend>Rating:</legend>
+          <input
+            type="radio"
+            id="no-rate"
+            class="input-no-rate"
+            name="review[rating]"
+            value="1"
+            checked
+            aria-label="No rating."
+          />
+          <input
+            type="radio"
+            id="first-rate1"
+            name="review[rating]"
+            value="1"
+          />
+          <label for="first-rate1" title="Terrible">1 star</label>
+          <input
+            type="radio"
+            id="first-rate2"
+            name="review[rating]"
+            value="2"
+          />
+          <label for="first-rate2" title="Not good">2 stars</label>
+          <input
+            type="radio"
+            id="first-rate3"
+            name="review[rating]"
+            value="3"
+          />
+          <label for="first-rate3" title="Average">3 stars</label>
+          <input
+            type="radio"
+            id="first-rate4"
+            name="review[rating]"
+            value="4"
+          />
+          <label for="first-rate4" title="Very good">4 stars</label>
+          <input
+            type="radio"
+            id="first-rate5"
+            name="review[rating]"
+            value="5"
+          />
+          <label for="first-rate5" title="Amazing">5 stars</label>
+        </fieldset>
+      </div>
+      <div class="mb-3">
+        <label for="review">Review</label>
+        <textarea
+          class="form-control"
+          name="review[body]"
+          id="body"
+          cols="30"
+          rows="7"
+          required
+        ></textarea>
+        <div class="invalid-feedback">Please fill this field</div>
+      </div>
+      <button class="btn btn-success" type="submit">Submit</button>
+    </form>
+    <%}%> <% for(const review of place.reviews) { %>
+    <div class="card mb-3">
+      <div class="card-body">
+        <p class="starability-result" data-rating="<%= review.rating %>">
+          Rated: <%= review.rating %>
+        </p>
+        <p class="card-text"><%= review.body %></p>
+        <p class="text-secondary"><%= review.author.username %></p>
+        <% if(currentUser && review.author.equals(currentUser._id)) {%>
+        <form
+          action="/places/<%= place._id%>/reviews/<%= review._id %>?_method=DELETE"
+          method="POST"
+        >
+          <button class="btn btn-danger btn-sm">Delete</button>
+        </form>
+        <%}%>
+      </div>
+    </div>
+    <%} %>
+  </div>
+</div>
+
+<script>
+  const place = <%-JSON.stringify(place)%>;
+  const coordinates = {lng: place.geoJSON.coordinates[1], lat: place.geoJSON.coordinates[0]}
+</script>
+<script>
+  function addMarker(group, coordinate, html) {
+    const svgMarkUp = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="50px" height="50px" style="enable-background:new 0 0 512 512" xml:space="preserve">
+    <path style="fill:#e6e6e6" d="m286.378 211.608-3.972 37.7L256 499.819l-26.417-250.511-3.972-37.7z"/>
+    <circle style="fill:#f95428" cx="256.006" cy="114.203" r="102.017"/>
+    <path style="fill:#e54728" d="M294.383 177.829c-56.341 0-102.013-45.673-102.013-102.013 0-18.311 4.849-35.479 13.296-50.336-30.854 17.543-51.678 50.688-51.678 88.718 0 56.341 45.673 102.013 102.013 102.013 38.03 0 71.174-20.825 88.718-51.678-14.856 8.449-32.025 13.296-50.336 13.296z"/>
+    <path style="fill:#b3b3b3" d="m286.378 211.608-3.972 37.702c-8.42 2.266-17.267 3.461-26.406 3.461s-17.998-1.206-26.418-3.461l-3.972-37.702h60.768z"/>
+    <path style="fill:#333" d="M370.199 114.199C370.199 51.229 318.97 0 256 0S141.801 51.229 141.801 114.199c0 48.26 30.091 89.622 72.495 106.314l29.579 280.579a12.186 12.186 0 0 0 24.237 0l29.579-280.575c42.412-16.69 72.508-58.055 72.508-106.318zM255.996 383.587 239.51 227.203a114.708 114.708 0 0 0 16.491 1.195c5.597 0 11.097-.412 16.481-1.193l-16.486 156.382zm.004-179.56c-49.53 0-89.828-40.296-89.828-89.828S206.47 24.371 256 24.371s89.828 40.296 89.828 89.828-40.296 89.828-89.828 89.828z"/>
+    <ellipse transform="rotate(-134.999 293.699 78.6)" style="fill:#f47c6c" cx="293.697" cy="78.6" rx="37.113" ry="25.87"/>
+    </svg>`;
+
+    const icon = new H.map.Icon(svgMarkUp);
+    const marker = new H.map.Marker(coordinates, { icon: icon });
+    marker.setData(html);
+    group.addObject(marker);
+  }
+
+  function addInfoBubble(map){
+    const group = new H.map.Group();
+
+    map.addObject(group);
+
+    group.addEventListener('tap', function (e) {
+      const bubble = new H.ui.InfoBubble(e.target.getGeometry(),{
+        content: e.target.getData()
+      })
+      ui.addBubble(bubble)
+    },false);
+
+    addMarker(group,coordinates,`<div>${place.title}</div>` + `<div>${place.description}</div>`)
+  }
+
+  const platform = new H.service.Platform({
+    apikey: "Mr-eun6v4VdGiMEAdECLo-_SwVeNCi-bNhgiQ--_iIE",
+  });
+  const defaultLayers = platform.createDefaultLayers();
+  const map = new H.Map(
+    document.getElementById("mapContainer"),
+    defaultLayers.vector.normal.map,
+    {
+      zoom: 10,
+      center: coordinates,
+    }
+  );
+  const ui = H.ui.UI.createDefault(map, defaultLayers, "en-US");
+  const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+  addInfoBubble(map)
+</script>
+

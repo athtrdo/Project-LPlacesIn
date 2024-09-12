@@ -1,0 +1,75 @@
+<nav class="navbar navbar-expand-lg bg-dark sticky-top" data-bs-theme="dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">LPlacesIn</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+      id="navbarNav"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/places">Places</a>
+        </li>
+        <% if(currentUser){ %>
+        <li class="nav-item">
+          <a class="nav-link" href="/places/create">New Place</a>
+        </li>
+        <% } %>
+      </ul>
+
+      <ul class="navbar-nav">
+        <% if(!currentUser) {%>
+        <li class="nav-item">
+          <a class="nav-link" href="/login">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/register">Register</a>
+        </li>
+      <%  }else{%>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="/logout"
+            onclick="event.preventDefault()
+          document.getElementById('logout-form').submit()"
+            >Logout (<%= currentUser.username %>)</a
+          >
+          <form
+            action="/logout"
+            method="POST"
+            style="display: none"
+            id="logout-form"
+          ></form>
+        </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<script>
+  document.getElementById('toggleButton').addEventListener('click', function() {
+    var navbarCollapse = document.getElementById('navbarNav');
+    var bsCollapse = new bootstrap.Collapse(navbarCollapse, {
+      toggle: false
+    });
+    if (navbarCollapse.classList.contains('show')) {
+      bsCollapse.hide();
+      document.getElementById('toggleText').textContent = 'Show Menu'; // Update button text
+    } else {
+      bsCollapse.show();
+      document.getElementById('toggleText').textContent = 'Hide Menu'; // Update button text
+    }
+  });
+</script>
