@@ -10,17 +10,17 @@ const LocalStrategy = require("passport-local");
 const User = require("./models/user");
 const app = express();
 const mongoose = require("mongoose");
-const mongodb_URI = "mongodb+srv://ajitrih7:athtrdo7@cluster7.h15lb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster7";
+require('dotenv').config();
+const mongoURI = process.env.MONGODB_URI;
+
+
+console.log('MongoDB URI:', process.env.MONGODB_URI);
+
 
 //connect to mongodb
-mongoose
-  .connect(mongodb_URI)
-  .then((result) => {
-    console.log("connected to mongodb");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+mongoose.connect(mongoURI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 app.engine("ejs", ejsMate);
 app.set("view wngine", "ejs");
