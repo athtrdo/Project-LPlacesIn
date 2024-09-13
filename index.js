@@ -4,6 +4,7 @@ const methodOverride = require("method-override");
 const session = require("express-session");
 const flash = require("connect-flash");
 const ErrorHandler = require("./utils/ErrorHandler");
+const port = process.env.PORT || 3000;
 const path = require("path");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -74,6 +75,6 @@ app.use((err, req, res, next) => {
   res.status(statusCode).render("error.ejs", { err });
 });
 
-app.listen(3000, () => {
-  console.log("server is running on http://127.0.0.1:3000");
+app.listen(port, () => {
+  console.log(`server is running on http://127.0.0.1:${port}`);
 });
