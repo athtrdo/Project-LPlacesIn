@@ -10,10 +10,11 @@ const LocalStrategy = require("passport-local");
 const User = require("./models/user");
 const app = express();
 const mongoose = require("mongoose");
+const mongodb_URI = "mongodb+srv://ajitrih7:athtrdo7@cluster7.h15lb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster7";
 
 //connect to mongodb
 mongoose
-  .connect("mongodb://127.0.0.1/listplaces")
+  .connect(mongodb_URI)
   .then((result) => {
     console.log("connected to mongodb");
   })
